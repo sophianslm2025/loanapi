@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+python-multipart
+pydantic
+joblib
+scikit-learn
+pandas
+numpy
+shap  # explications modèle (optionnel, lourd mais utile)
+mysql-connector-python  # si besoin d’aller chercher les données client
