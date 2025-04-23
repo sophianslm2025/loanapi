@@ -4,7 +4,7 @@ Ce dépôt regroupe :
 - **backend/** : API FastAPI (prédiction + explications)
 - **frontend/** : Dashboard Streamlit pour les conseillers
 - **data/** : (optionnel) jeux de données Kaggle si tu veux ré‑entraîner le modèle
-- **model/** : pipeline entraîné (`pipeline.pkl`)
+- **backend/model/** : pipeline entraîné (`pipeline.pkl`)
 
 > 🖥️ **Objectif** : lancer l’API et le dashboard **en local** _ou_ les déployer gratuitement (PythonAnywhere + Streamlit Cloud).
 
