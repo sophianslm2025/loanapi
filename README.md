@@ -34,7 +34,7 @@ loan_dashboard/
 ## 3. Installation **en local**
 ```bash
 # Clone du repo
-$ git clone https://github.com/sophianslm2025/loanapi.git
+$ git clone https://github.com/ton_user/loan_dashboard.git
 $ cd loan_dashboard
 
 # Création + activation d’un venv
@@ -51,7 +51,6 @@ $ source venv/bin/activate
 
 ### 3.1 (Optionnel) Ré‑entraîner le pipeline
 Si tu veux régénérer `pipeline.pkl` :
-- Télécharger le csv application_train.csv et le mettre dans le dossier ./data depuis -> https://www.kaggle.com/code/moizzz/applied-predictive-modelling-brief-overview
 ```bash
 (venv) $ cd backend
 (venv) $ python train_pipeline.py   # lit data/application_train.csv
@@ -84,53 +83,59 @@ Le fichier `backend/model/pipeline.pkl` est mis à jour.
 > **Astuce** : l’URL de l’API est paramétrée en haut de `frontend/app.py` (`API_URL`). Pour un usage local, laisse `http://127.0.0.1:8000/predict`.
 
 ---
-## 6. Déploiement **gratuit**
+## 6. Déploiement (gratuit)
 
-### 6.1 API sur PythonAnywhere Free
-1. Upload du dossier `backend/` sur PA via Git ou ZIP.  
-2. Crée un venv, installe `pip install -r backend/requirements.txt mangum`.  
-3. Configure la Web app : chemin source = `~/loan_dashboard/backend`, fichier WSGI :
-   ```python
-   import sys, os
-   from pathlib import Path
-   path = Path.home() / 'loan_dashboard' / 'backend'
-   sys.path.append(str(path))
-   from mangum import Mangum
-   from main import app as fastapi_app
-   application = Mangum(fastapi_app)
-   ```
-4. **Reload** → API accessible sur `https://<username>.pythonanywhere.com/predict`.
+### 6.1 API FastAPI sur PythonAnywhere **Free** (pas de carte bleue)
 
-### 6.2 Dashboard sur Streamlit Community Cloud
-1. Crée un repo GitHub avec `frontend/app.py` + `frontend/requirements.txt`.  
-2. <https://share.streamlit.io> → **New app** → choisis le repo + `app.py`.  
-3. Dans *Advanced ▸ Secrets* :
+| Étape | Commande / Action |
+|-------|-------------------|
+| **a.** Crée un compte | <https://www.pythonanywhere.com> → **Register** (plan Free) |
+| **b.** Ouvre une *Bash console* | Dashboard ▸ **Open bash** |
+| **c.** Clone ou upload le dépôt | `git clone https://github.com/<toi>/loan_dashboard.git`  
+*(ou `scp`/ZIP)* |
+| **d.** Crée + active un venv | `python3.11 -m venv venv && source venv/bin/activate` |
+| **e.** Installe les libs | `pip install --no-cache-dir -r loan_dashboard/backend/requirements.txt mangum` |
+| **f.** New Web App | Dashboard ▸ **Web** ▸ *Add a new web app* ▸ **Manual configuration** ▸ Python 3.11 |
+| **g.** Répertoire source | `/home/<user>/loan_dashboard/backend` |
+| **h.** Virtualenv | `/home/<user>/venv` (sélecteur PA) |
+| **i.** Fichier WSGI | *Clique* « WSGI file » et colle :  |
+
+```python
+import sys, os
+from pathlib import Path
+path = Path.home() / 'loan_dashboard' / 'backend'
+sys.path.append(str(path))
+from mangum import Mangum               # déjà installé à l’étape e
+from main import app as fastapi_app
+application = Mangum(fastapi_app)
+```
+| **j.** Reload l’app | bouton **Reload** sur la page Web |
+| **k.** Tester | <https://<user>.pythonanywhere.com/docs> (Swagger) |
+
+### 6.2 Dashboard Streamlit (100 % gratuit en **local**)
+
+Le plan gratuit PA ne permet **pas** d’héberger Streamlit :
+> Lance la commande suivante sur les postes conseillers (ou un serveur interne) :
+
+```bash
+cd loan_dashboard/frontend
+streamlit run app.py
+```
+
+- L’URL de l’API dans `app.py` doit pointer :
+  ```python
+  API_URL = "https://<user>.pythonanywhere.com/predict"
+  ```
+- Accès au dashboard : `http://localhost:8501` (ou IP du serveur interne).
+
+### 6.3 (Option payant) – Streamlit Community Cloud / PA Hacker
+Si tu souhaites un hébergement public :
+1. Crée un repo GitHub avec `frontend/app.py` et `requirements.txt`.
+2. <https://share.streamlit.io> ▸ **New app** ; mets `API_URL` dans les *secrets* :
    ```toml
-   API_URL = "https://<username>.pythonanywhere.com/predict"
+   API_URL = "https://<user>.pythonanywhere.com/predict"
    ```
-4. Dans `app.py` :
-   ```python
-   import streamlit as st
-   API_URL = st.secrets["API_URL"]
-   ```
-5. **Deploy** → URL `https://<user>-loan-dashboard.streamlit.app`.
+3. L’app est disponible sur `https://<ton-slug>.streamlit.app`.
 
 ---
-## 7. Structure RGPD & Sécurité
-| Point | Mise en œuvre |
-|-------|---------------|
-| Minimisation | 5 variables pseudonymisées envoyées à l’API |
-| Pseudonymisation | ID client en UUID non exposé publiquement |
-| Chiffrement | TLS via HTTPS PythonAnywhere & Streamlit Cloud |
-| Droits | Endpoints à ajouter : GET/DELETE `/client/{id}` |
-| Logs | Rotation 30 jours, IP tronquées, pas de payload complet |
-
----
-## 8. FAQ rapide
-- **Erreur 400 “KeyError 'EXT_SOURCE_1'”** : vérifie que le JSON contient bien les 5 features exactes.
-- **SHAP explanation vide** : assure‑toi que `serve_model.py` utilise `TreeExplainer` et que `pipeline.pkl` est chargé.
-- **Streamlit Cloud timeout** : l’app se met en veille au bout d’1h d’inactivité ; elle se réveille en 10 s.
-
----
-### Made with ❤️ by Sophian — Dernière mise à jour : avril 2025
 
